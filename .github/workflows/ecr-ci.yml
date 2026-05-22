@@ -38,6 +38,8 @@ jobs:
 
       - name: Terraform Apply
         working-directory: environments/dev
+        env:
+          TF_LOG: DEBUG
         run: terraform apply -auto-approve
 
       - name: Build Docker Image
