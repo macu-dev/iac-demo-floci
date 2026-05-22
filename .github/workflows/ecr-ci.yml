@@ -56,3 +56,10 @@ jobs:
         run: |
           # Push directly. No docker login required for Floci!
           docker push localhost:4566/dev-iac-floci-repo:latest
+
+      - name: Cleanup Floci spawned containers
+        if: always()
+        run: |
+          # Detiene y borra los sub-contenedores que Floci levanta (ej. el registry de ECR)
+          # para que GitHub Actions pueda borrar la red sin fallar.
+          docker ps -a --format "{{.Names}}" | grep "^floci-" | xargs -r docker rm -f || true
