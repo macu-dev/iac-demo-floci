@@ -32,14 +32,6 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - name: Wait for Floci to be ready
-        run: |
-          echo "Waiting for Floci to initialize..."
-          while ! curl -s http://localhost:4566/_floci/health | grep -q "ok"; do
-            sleep 1
-          done
-          echo "Floci is ready!"
-
       - name: Terraform Init
         working-directory: environments/dev
         run: terraform init
