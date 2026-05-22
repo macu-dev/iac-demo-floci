@@ -16,6 +16,8 @@ jobs:
         image: floci/floci:latest
         ports:
           - 4566:4566
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
 
     env:
       AWS_ACCESS_KEY_ID: test
