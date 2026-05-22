@@ -40,9 +40,9 @@ jobs:
 
       - name: Terraform Apply
         working-directory: environments/dev
-        env:
-          TF_LOG: DEBUG
-        run: terraform apply -auto-approve
+        run: |
+          terraform apply -auto-approve
+          echo "ECR_REPO_URL=$(terraform output -raw ecr_repository_url)" >> $GITHUB_ENV
 
       - name: Build Docker Image
         run: |
@@ -50,10 +50,10 @@ jobs:
 
       - name: Tag Image for Local ECR
         run: |
-          docker tag dev-iac-floci-repo:latest localhost:4566/dev-iac-floci-repo:latest
+          docker tag dev-iac-floci-repo:latest ${{ env.ECR_REPO_URL }}:latest
 
       - name: Push to Floci ECR
         run: |
           # Push directly. No docker login required for Floci!
-          docker push localhost:4566/dev-iac-floci-repo:latest
+          docker push ${{ env.ECR_REPO_URL }}:latest
 
