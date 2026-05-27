@@ -53,25 +53,33 @@ flowchart TD
 
 Si querés probar este flujo en tu máquina antes de enviarlo a GitHub:
 
-1. **Levantá Floci** en una terminal:
+1. **Levantá Floci** usando Docker Compose:
    ```bash
-   floci start
-   # o alternativamente: docker compose up (si tenés el compose.yaml)
-   ```
-2. **Ejecutá Terraform:**
-   ```bash
-   cd environments/dev
-   terraform init
-   terraform apply
-   ```
-3. **Build y Push del Contenedor:**
-   ```bash
-   docker build -t dev-iac-floci-repo:latest ../../
-   docker tag dev-iac-floci-repo:latest localhost:4566/dev-iac-floci-repo:latest
-   docker push localhost:4566/dev-iac-floci-repo:latest
+   docker compose up -d
    ```
 
-Una vez terminado, podés usar el AWS CLI local para verificar los recursos creados:
+2. **Configurá tus variables de AWS y ejecutá Terraform:**
+   ```bash
+   export AWS_ACCESS_KEY_ID=test
+   export AWS_SECRET_ACCESS_KEY=test
+   export AWS_DEFAULT_REGION=us-east-1
+   export AWS_ENDPOINT_URL=http://localhost:4566
+
+   cd environments/dev
+   terraform init
+   terraform apply -auto-approve
+   cd ../..
+   ```
+
+3. **Build y Push del Contenedor usando el output de Terraform:**
+   ```bash
+   docker build -t dev-iac-floci-repo:latest .
+   export REPO_URL=$(terraform -chdir=environments/dev output -raw ecr_repository_url)
+   docker tag dev-iac-floci-repo:latest $REPO_URL:latest
+   docker push $REPO_URL:latest
+   ```
+
+Una vez terminado, podés apagar el emulador y limpiar tu máquina con:
 ```bash
-aws --endpoint-url=http://localhost:4566 ecr describe-repositories
+docker compose down
 ```
